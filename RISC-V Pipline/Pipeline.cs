@@ -8,6 +8,14 @@ namespace RISC_V_Pipeline
 {
     public class Pipeline
     {
+        bool[] registers = new bool[32];
+
+        string[] instructions;
+
+        public Pipeline(string instructionSet)
+        {
+            instructions = instructionSet.Split('\n');
+        }
 
         void Fetch()
         {
