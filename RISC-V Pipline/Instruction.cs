@@ -8,17 +8,16 @@ namespace RISC_V_Pipline
 
     internal class Instruction
     {
-        private InstructionType operand { get; set; }
-        private string reg1;
-        private string reg2;
-        private int offset;
+        public InstructionType operand { get; set; }
+        public string reg1 { get; set; }
+        public string reg2 { get; set; }
 
-        public Instruction(InstructionType _operand, string reg1, string reg2, int offset)
+        public Instruction(InstructionType _operand, string reg1, string reg2)
         {
             this.operand = _operand;
             this.reg1 = reg1;
             this.reg2 = reg2;
-            this.offset = offset;
+
         }
     }
 
