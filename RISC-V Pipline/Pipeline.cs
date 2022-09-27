@@ -22,6 +22,8 @@ namespace RISC_V_Pipeline
 
         void Fetch()
         {
+            
+
         }
 
         void Decode()
