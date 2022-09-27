@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace RISC_V_Pipeline
 {
@@ -21,10 +22,6 @@ namespace RISC_V_Pipeline
 
         void Fetch()
         {
-            string instructionString = instructions[programCounter++];
-            instructionString = instructionString.Remove(',');
-
-            string[] instruction = instructionString.Split(' ');
         }
 
         void Decode()
