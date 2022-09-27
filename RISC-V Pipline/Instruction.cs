@@ -8,17 +8,12 @@ namespace RISC_V_Pipline
 
     internal class Instruction
     {
-        public InstructionType operand { get; set; }
-        public string reg1 { get; set; }
-        public string reg2 { get; set; }
-
-        public Instruction(InstructionType _operand, string reg1, string reg2)
-        {
-            this.operand = _operand;
-            this.reg1 = reg1;
-            this.reg2 = reg2;
-
-        }
+        public InstructionType Operand { get; set; }
+        public string Source1 { get; set; }
+        public string Source2 { get; set; }
+        public string Destination { get; set; }
+        public string Label { get; set; }
+        public bool ImmediateFlag { get; set; }
     }
 
     internal enum InstructionType
