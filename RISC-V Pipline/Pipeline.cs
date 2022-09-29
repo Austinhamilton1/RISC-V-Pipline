@@ -17,28 +17,45 @@ namespace RISC_V_Pipeline
 
         bool errorFlag = false;
 
+        int dataHazards = 0;
+        int controlHazards = 0;
+        int structuralHazard = 0;
+
+        public Instruction F_DEC { get; set; }
+        public Instruction DEC_EX { get; set; }
+        public Instruction EX_MEM { get; set; }
+        public Instruction MEM_WB { get; set; }
+
         public Pipeline(string instructionSet)
         {
             instructions = instructionSet.Split('\n');
+            for(int i = 0; i < registers.Length; i++)
+                registers[i] = false;
         }
 
-        void Fetch()
+        int Fetch()
         {
             string instructionString = instructions[programCounter++];
             instructionString.Replace(',', ' ');
 
             string[] instruction = instructionString.Split(' ');
 
-            Decode(instruction);
+            return Decode(instruction) + 1;
         }
 
-        void Decode(string[] instruction)
+        int Decode(string[] instruction)
         {
             Instruction i = new Instruction();
 
-            if (instruction[0] == "sw" || instruction[0] == "lw")
+            if (instruction[0] == "sw")
             {
-                i.Operand = InstructionType.MEMORY;
+                i.Operand = InstructionType.SW;
+                i.Destination = instruction[1];
+                i.Source1 = instruction[2];
+            }
+            else if (instruction[0] == "lw")
+            {
+                i.Operand = InstructionType.LW;
                 i.Destination = instruction[1];
                 i.Source1 = instruction[2];
             }
@@ -49,6 +66,7 @@ namespace RISC_V_Pipeline
                 i.Destination = instruction[1];
                 i.Source1 = instruction[2];
                 i.Source2 = instruction[3];
+                i.ImmediateFlag = false;
 
                 if (instruction[0] == "addi")
                     i.ImmediateFlag = true;
@@ -63,22 +81,66 @@ namespace RISC_V_Pipeline
             else
                 errorFlag = true;
 
-            Execute(i);
+            return 1 + Execute(i);
         }
 
-        void Execute(Instruction instruction)
+        int Execute(Instruction instruction)
         {
+            if(instruction.Operand == InstructionType.ARITHMETIC && !instruction.ImmediateFlag)
+            {
+                int source1 = Convert.ToInt32(instruction.Source1.Remove('x'));
+                int source2 = Convert.ToInt32(instruction.Source2.Remove('x'));
+                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
 
+                if (!registers[source1] || !registers[source2])
+                {
+                    registers[destination] = true;
+                    dataHazards++;
+                    return 2 + WriteBack();
+                }
+
+                registers[destination] = true;
+            }
+            else if(instruction.Operand == InstructionType.ARITHMETIC && instruction.ImmediateFlag)
+            {
+                int source = Convert.ToInt32(instruction.Source1.Remove('x'));
+                int destination = Convert.ToInt32((instruction.Destination.Remove('x')));
+
+                if (!registers[source])
+                {
+                    registers[destination] = true;
+                    dataHazards++;
+                    return 2 + WriteBack();
+                }
+
+                registers[destination] = true;
+            }
+            else if(instruction.Operand == InstructionType.LW)
+            {
+                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
+                registers[destination] = true;
+                return 1 + Memory();
+            }
+            else if(instruction.Operand == InstructionType.SW)
+            {
+                int source = Convert.ToInt32(instruction.Destination.Remove('x'));
+            }
+            else if(instruction.Operand == InstructionType.EXECUTE)
+            {
+                ;
+            }
+
+            return 1 + WriteBack();
         }
 
-        void Memory()
+        int Memory()
         {
-
+            return 3 + WriteBack();
         }
 
-        void WriteBack()
+        int WriteBack()
         {
-
+            return 1;
         }
     }
 }

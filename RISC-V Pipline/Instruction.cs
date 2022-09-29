@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace RISC_V_Pipline
 {
 
-    internal class Instruction
+    public class Instruction
     {
         public InstructionType Operand { get; set; }
         public string Source1 { get; set; }
@@ -16,9 +16,9 @@ namespace RISC_V_Pipline
         public bool ImmediateFlag { get; set; }
     }
 
-    internal enum InstructionType
+    public enum InstructionType
     {
-        MEMORY, ARITHMETIC, EXECUTE
+        LW, SW, ARITHMETIC, EXECUTE
     }
 
 }
