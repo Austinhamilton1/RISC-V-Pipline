@@ -150,7 +150,7 @@ namespace RISC_V_Pipeline
 
         int Memory(Instruction instruction)
         {
-            if(instruction.Operand == InstructionType.LW)
+            if(instruction.Operand == InstructionType.LW || instruction.Operand == InstructionType.SW)
             {
                 int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
                 registers[destination] = true;
