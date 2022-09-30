@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +22,8 @@ namespace RISC_V_Pipeline
         int controlHazards = 0;
         int structuralHazard = 0;
 
+        public Dictionary<string, int> SymbolTable = new Dictionary<String, int>();
+
         public Instruction F_DEC { get; set; }
         public Instruction DEC_EX { get; set; }
         public Instruction EX_MEM { get; set; }
@@ -31,6 +34,13 @@ namespace RISC_V_Pipeline
             instructions = instructionSet.Split('\n');
             for(int i = 0; i < registers.Length; i++)
                 registers[i] = false;
+
+            for(int i = 0; i < instructions.Length; i++)
+            {
+                if (!instructions[i].Contains(' '))
+                    SymbolTable.Add(instructions[i], i);
+            }
+                
         }
 
         int Fetch()
@@ -118,23 +128,34 @@ namespace RISC_V_Pipeline
             else if(instruction.Operand == InstructionType.LW)
             {
                 int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
-                registers[destination] = true;
-                return 1 + Memory();
+                registers[destination] = false;
+                return 1 + Memory(instruction);
             }
             else if(instruction.Operand == InstructionType.SW)
             {
                 int source = Convert.ToInt32(instruction.Destination.Remove('x'));
+
+                return 1 + Memory(instruction);
+                
             }
             else if(instruction.Operand == InstructionType.EXECUTE)
             {
-                ;
+                string label = instruction.Label;
+                programCounter = SymbolTable[label];
+
             }
 
             return 1 + WriteBack();
         }
 
-        int Memory()
+        int Memory(Instruction instruction)
         {
+            if(instruction.Operand == InstructionType.LW)
+            {
+                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
+                registers[destination] = true;
+            }
+            
             return 3 + WriteBack();
         }
 
