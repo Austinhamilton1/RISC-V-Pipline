@@ -22,7 +22,9 @@ namespace RISC_V_Pipeline
         int controlHazards = 0;
         int structuralHazard = 0;
 
-        public Dictionary<string, int> SymbolTable = new Dictionary<String, int>();
+        int[] lastOp = { 0, 0, 0, 0 };
+
+        List<int[]> cycles = new List<int[]>();
 
         public Instruction F_DEC { get; set; }
         public Instruction DEC_EX { get; set; }
@@ -34,26 +36,24 @@ namespace RISC_V_Pipeline
             instructions = instructionSet.Split('\n');
             for(int i = 0; i < registers.Length; i++)
                 registers[i] = false;
-
-            for(int i = 0; i < instructions.Length; i++)
-            {
-                if (!instructions[i].Contains(' '))
-                    SymbolTable.Add(instructions[i], i);
-            }
                 
         }
 
-        int Fetch()
+        void Fetch()
         {
+            cycles.Add(new int[5]);
+
             string instructionString = instructions[programCounter++];
             instructionString.Replace(',', ' ');
 
             string[] instruction = instructionString.Split(' ');
 
-            return Decode(instruction) + 1;
+            cycles[programCounter - 1][0] = Math.Max(1, lastOp[0]);
+
+            Decode(instruction, cycles[programCounter - 1]);
         }
 
-        int Decode(string[] instruction)
+        int Decode(string[] instruction, int[] cycles)
         {
             Instruction i = new Instruction();
 
@@ -140,8 +140,7 @@ namespace RISC_V_Pipeline
             }
             else if(instruction.Operand == InstructionType.EXECUTE)
             {
-                string label = instruction.Label;
-                programCounter = SymbolTable[label];
+                
 
             }
 
