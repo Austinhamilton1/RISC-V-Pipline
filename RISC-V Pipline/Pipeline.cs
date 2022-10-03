@@ -38,8 +38,16 @@ namespace RISC_V_Pipeline
 
         public void RunPipeline()
         {
+            Console.WriteLine("                    Static Pileline Simulation                  ");
+            Console.WriteLine("\n----------------------------------------------------------------");
+            Console.WriteLine("\nInstruction\tInst.\tDecode\tExecute\tAccess\tWrite");
+            Console.WriteLine("\t\tFetch\tRead Reg\t");
+
             for (int i = 0; i < instructions.Length; i++)
+            {
                 Fetch();
+            }
+                
         }
 
         void Fetch()
@@ -220,6 +228,18 @@ namespace RISC_V_Pipeline
 
                 Console.WriteLine();
             }
+        }
+
+        void PrintLayout(string instruction)
+        {
+     
+            string msg = "";
+
+            msg += "                    Static Pileline Simulation                  ";
+            msg += "\n----------------------------------------------------------------";
+            msg += "\nInstruction         Inst. Fetch      Decode Read Reg.      Execute Calc Adr      Access Memory      Write Register";
+            msg += "\n------------        ------------      -----------------     ----------------     --------------      --------------";
+          
         }
     }
 }
