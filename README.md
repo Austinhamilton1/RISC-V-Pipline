@@ -16,7 +16,7 @@ Project Leader –
 	Kinslee Hammonds
   
 Project Creator – 
-	Austin Hammilton
+	Austin Hamilton
   
 Project Collaborators - 
 	Genalyn Thomas
