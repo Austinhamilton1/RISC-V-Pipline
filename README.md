@@ -19,6 +19,5 @@ Project Creator –
 	Austin Hamilton
   
 Project Collaborators - 
-	Genalyn Thomas
-	Amanda Lee
+	Genalyn Thomas & Amanda Lee
 
