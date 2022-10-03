@@ -1,5 +1,4 @@
-﻿using RISC_V_Pipline;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -15,8 +14,6 @@ namespace RISC_V_Pipeline
         string[] instructions;
 
         int programCounter = 0;
-
-        bool errorFlag = false;
 
         int dataHazards = 0;
         int controlHazards = 0;
@@ -39,6 +36,12 @@ namespace RISC_V_Pipeline
                 
         }
 
+        public void RunPipeline()
+        {
+            for (int i = 0; i < instructions.Length; i++)
+                Fetch();
+        }
+
         void Fetch()
         {
             cycles.Add(new int[5]);
@@ -53,7 +56,7 @@ namespace RISC_V_Pipeline
             Decode(instruction, cycles[programCounter - 1]);
         }
 
-        int Decode(string[] instruction, int[] cycles)
+        void Decode(string[] instruction, int[] cycle)
         {
             Instruction i = new Instruction();
 
@@ -83,18 +86,21 @@ namespace RISC_V_Pipeline
             }
             else if (instruction[0] == "bne" || instruction[0] == "beq")
             {
-                i.Operand = InstructionType.EXECUTE;
+                i.Operand = InstructionType.CONTROL;
                 i.Destination = instruction[1];
                 i.Source1 = instruction[2];
                 i.Label = instruction[3];
             }
-            else
-                errorFlag = true;
 
-            return 1 + Execute(i);
+            cycle[1] = Math.Max(1, lastOp[1]);
+
+            if(1 > lastOp[0])
+                lastOp[0] = 1;
+
+            Execute(i, cycle);
         }
 
-        int Execute(Instruction instruction)
+        void Execute(Instruction instruction, int[] cycle)
         {
             if(instruction.Operand == InstructionType.ARITHMETIC && !instruction.ImmediateFlag)
             {
@@ -106,7 +112,12 @@ namespace RISC_V_Pipeline
                 {
                     registers[destination] = true;
                     dataHazards++;
-                    return 2 + WriteBack();
+                    cycle[2] = Math.Max(1, lastOp[2]);
+                    
+                    if(1 > lastOp[1])
+                        lastOp[1] = 1;
+
+                    Memory(instruction, cycle, false);
                 }
 
                 registers[destination] = true;
@@ -120,47 +131,80 @@ namespace RISC_V_Pipeline
                 {
                     registers[destination] = true;
                     dataHazards++;
-                    return 2 + WriteBack();
+                    cycle[2] = Math.Max(1, lastOp[2]);
+
+                    if (1 > lastOp[1])
+                        lastOp[1] = 2;
+
+                    Memory(instruction, cycle, false);
                 }
 
                 registers[destination] = true;
             }
             else if(instruction.Operand == InstructionType.LW)
             {
-                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
                 registers[destination] = false;
-                return 1 + Memory(instruction);
+                
+                cycle[2] = Math.Max(1, lastOp[2]);
+
+                if (1 > lastOp[1])
+                    lastOp[1] = 1;
+
+                Memory(instruction, cycle, true);
             }
             else if(instruction.Operand == InstructionType.SW)
             {
-                int source = Convert.ToInt32(instruction.Destination.Remove('x'));
+                int source = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
 
-                return 1 + Memory(instruction);
-                
+                cycle[2] = Math.Max(1, lastOp[2]);
+
+                if (1 > lastOp[1])
+                    lastOp[1] = 1;
+
+                Memory(instruction, cycle, true);
+
             }
-            else if(instruction.Operand == InstructionType.EXECUTE)
+            else if(instruction.Operand == InstructionType.CONTROL)
             {
-                
+                cycle[2] = Math.Max(2, lastOp[2]);
+                controlHazards++;
 
+                Memory(instruction, cycle, false);
             }
-
-            return 1 + WriteBack();
         }
 
-        int Memory(Instruction instruction)
+        void Memory(Instruction instruction, int[] cycle, bool access)
         {
-            if(instruction.Operand == InstructionType.LW || instruction.Operand == InstructionType.SW)
+            if (access)
             {
-                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
                 registers[destination] = true;
+
+                cycle[3] = Math.Max(3, lastOp[3]);
+
+                if (3 > lastOp[2])
+                    lastOp[2] = 3;
+
+                WriteBack(cycle);
             }
-            
-            return 3 + WriteBack();
+            else
+            {
+                cycle[3] = Math.Max(1, lastOp[3]);
+
+                if (1 > lastOp[2])
+                    lastOp[2] = 1;
+
+                WriteBack(cycle);
+            }
         }
 
-        int WriteBack()
+        void WriteBack(int[] cycle)
         {
-            return 1;
+            cycle[4] = 1;
+
+            if (1 > lastOp[3])
+                lastOp[3] = 1;
         }
     }
 }

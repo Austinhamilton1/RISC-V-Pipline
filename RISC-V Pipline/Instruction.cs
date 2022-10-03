@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-namespace RISC_V_Pipline
+namespace RISC_V_Pipeline
 {
 
     public class Instruction
@@ -18,7 +18,7 @@ namespace RISC_V_Pipline
 
     public enum InstructionType
     {
-        LW, SW, ARITHMETIC, EXECUTE
+        LW, SW, ARITHMETIC, CONTROL
     }
 
 }
