@@ -18,7 +18,7 @@ namespace RISC_V_Pipline
 
     internal enum InstructionType
     {
-        MEMORY, ARITHMETIC, EXECUTE
+        MEMORY, ARITHMETIC, CONTROL
     }
 
 }
