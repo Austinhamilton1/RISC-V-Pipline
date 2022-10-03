@@ -1,0 +1,5 @@
+lw x7, 26(x4)
+lw x6, 30(x2)
+add x3, x2, x1
+addi x5, x4, 16
+sub x8, x6, x2 
