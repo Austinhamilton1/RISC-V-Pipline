@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -13,13 +14,14 @@ namespace RISC_V_Pipeline
 
         string[] instructions;
 
+
         int programCounter = 0;
 
         int dataHazards = 0;
         int controlHazards = 0;
         int structuralHazard = 0;
 
-        int[] lastOp = { 0, 0, 0, 0 };
+        int[] lastOp = { 0, 0, 0, 0};
 
         List<int[]> cycles = new List<int[]>();
 
@@ -38,12 +40,8 @@ namespace RISC_V_Pipeline
 
         public void RunPipeline()
         {
-            Console.WriteLine("                    Static Pileline Simulation                  ");
-            Console.WriteLine("\n----------------------------------------------------------------");
-            Console.WriteLine("\nInstruction\tInst.\tDecode\tExecute\tAccess\tWrite");
-            Console.WriteLine("\t\tFetch\tRead Reg\t");
 
-            for (int i = 0; i < instructions.Length; i++)
+            for (int i = 0; i < instructions.Length - 1; i++)
             {
                 Fetch();
             }
@@ -117,18 +115,15 @@ namespace RISC_V_Pipeline
                 int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
                 if (!registers[source1] || !registers[source2])
-                {
-                    registers[destination] = true;
                     dataHazards++;
-                    cycle[2] = Math.Max(1, lastOp[2]);
-                    
-                    if(1 > lastOp[1])
-                        lastOp[1] = 1;
-
-                    Memory(instruction, cycle, false);
-                }
 
                 registers[destination] = true;
+                cycle[2] = Math.Max(1, lastOp[2]);
+
+                if (1 > lastOp[1])
+                    lastOp[1] = 1;
+
+                Memory(instruction, cycle, false);
             }
             else if(instruction.Operand == InstructionType.ARITHMETIC && instruction.ImmediateFlag)
             {
@@ -136,18 +131,15 @@ namespace RISC_V_Pipeline
                 int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
                 if (!registers[source])
-                {
-                    registers[destination] = true;
                     dataHazards++;
-                    cycle[2] = Math.Max(1, lastOp[2]);
-
-                    if (1 > lastOp[1])
-                        lastOp[1] = 2;
-
-                    Memory(instruction, cycle, false);
-                }
 
                 registers[destination] = true;
+                cycle[2] = Math.Max(1, lastOp[2]);
+
+                if (1 > lastOp[1])
+                    lastOp[1] = 2;
+
+                Memory(instruction, cycle, false);
             }
             else if(instruction.Operand == InstructionType.LW)
             {
@@ -230,17 +222,6 @@ namespace RISC_V_Pipeline
             }
         }
 
-        void PrintLayout(string instruction)
-        {
-     
-            string msg = "";
-
-            msg += "                    Static Pileline Simulation                  ";
-            msg += "\n----------------------------------------------------------------";
-            msg += "\nInstruction         Inst. Fetch      Decode Read Reg.      Execute Calc Adr      Access Memory      Write Register";
-            msg += "\n------------        ------------      -----------------     ----------------     --------------      --------------";
-          
-        }
     }
 }
 
