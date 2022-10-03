@@ -4,11 +4,17 @@
     {
         static void Main(string[] args)
         {
-            string instructions = Console.ReadLine();
+            string line;
+            string instructions = string.Empty;
+
+            while (!string.IsNullOrWhiteSpace(line = Console.ReadLine()))
+                instructions += line + '\n';
 
             Pipeline p = new Pipeline(instructions);
 
             p.RunPipeline();
+
+            p.PrintList();
         }
     }
 }

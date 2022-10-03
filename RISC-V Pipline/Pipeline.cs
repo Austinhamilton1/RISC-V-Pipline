@@ -47,7 +47,7 @@ namespace RISC_V_Pipeline
             cycles.Add(new int[5]);
 
             string instructionString = instructions[programCounter++];
-            instructionString.Replace(',', ' ');
+            instructionString = instructionString.Replace(",", "");
 
             string[] instruction = instructionString.Split(' ');
 
@@ -104,9 +104,9 @@ namespace RISC_V_Pipeline
         {
             if(instruction.Operand == InstructionType.ARITHMETIC && !instruction.ImmediateFlag)
             {
-                int source1 = Convert.ToInt32(instruction.Source1.Remove('x'));
-                int source2 = Convert.ToInt32(instruction.Source2.Remove('x'));
-                int destination = Convert.ToInt32(instruction.Destination.Remove('x'));
+                int source1 = Convert.ToInt32(instruction.Source1.Substring(1));
+                int source2 = Convert.ToInt32(instruction.Source2.Substring(1));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
                 if (!registers[source1] || !registers[source2])
                 {
@@ -124,8 +124,8 @@ namespace RISC_V_Pipeline
             }
             else if(instruction.Operand == InstructionType.ARITHMETIC && instruction.ImmediateFlag)
             {
-                int source = Convert.ToInt32(instruction.Source1.Remove('x'));
-                int destination = Convert.ToInt32((instruction.Destination.Remove('x')));
+                int source = Convert.ToInt32(instruction.Source1.Substring(1));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
                 if (!registers[source])
                 {
@@ -143,7 +143,7 @@ namespace RISC_V_Pipeline
             }
             else if(instruction.Operand == InstructionType.LW)
             {
-                int destination = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1));
                 registers[destination] = false;
                 
                 cycle[2] = Math.Max(1, lastOp[2]);
@@ -155,7 +155,7 @@ namespace RISC_V_Pipeline
             }
             else if(instruction.Operand == InstructionType.SW)
             {
-                int source = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
+                int source = Convert.ToInt32(instruction.Destination.Substring(1));
 
                 cycle[2] = Math.Max(1, lastOp[2]);
 
@@ -178,7 +178,7 @@ namespace RISC_V_Pipeline
         {
             if (access)
             {
-                int destination = Convert.ToInt32(instruction.Destination.Substring(1, instruction.Destination.Length));
+                int destination = Convert.ToInt32(instruction.Destination.Substring(1));
                 registers[destination] = true;
 
                 cycle[3] = Math.Max(3, lastOp[3]);
@@ -203,8 +203,23 @@ namespace RISC_V_Pipeline
         {
             cycle[4] = 1;
 
-            if (1 > lastOp[3])
-                lastOp[3] = 1;
+            for (int i = 0; i < lastOp.Length - 1; i++)
+                lastOp[i] = lastOp[i + 1];
+
+            lastOp[3] = 1;
+        }
+
+        public void PrintList()
+        {
+            foreach (int[] row in cycles)
+            {
+                foreach (int cycle in row)
+                {
+                    Console.Write($"\t{cycle}");
+                }
+
+                Console.WriteLine();
+            }
         }
     }
 }
