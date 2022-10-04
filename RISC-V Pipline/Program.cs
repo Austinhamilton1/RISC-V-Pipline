@@ -14,7 +14,6 @@
 
             p.RunPipeline();
 
-            p.PrintList();
         }
     }
 }

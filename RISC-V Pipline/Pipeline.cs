@@ -40,11 +40,25 @@ namespace RISC_V_Pipeline
 
         public void RunPipeline()
         {
+            Console.WriteLine("\t\t\t\t\t     Static Pipeline Simulation     \t\t\t\t\t");
+            Console.WriteLine("\t-------------------------------------------------------------------------------------------");
+            Console.WriteLine("\tInstructions         Fetch         Decode         Exectute        Memory          WriteBack");
+            Console.WriteLine("\t-------------       -------       --------       ----------      ---------       -----------");
 
             for (int i = 0; i < instructions.Length - 1; i++)
             {
                 Fetch();
             }
+
+
+            PrintList();
+
+            Console.WriteLine("\n\n\tHazards");
+            Console.WriteLine("\t----------------------");
+            Console.WriteLine("\tStructural Hazard: " + structuralHazard);
+            Console.WriteLine("\tData Hazard: " + dataHazards);
+            Console.WriteLine("\tControl Hazard: " + controlHazards);
+
                 
         }
 
@@ -114,8 +128,9 @@ namespace RISC_V_Pipeline
                 int source2 = Convert.ToInt32(instruction.Source2.Substring(1));
                 int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
-                if (!registers[source1] || !registers[source2])
+                if (registers[source1] || registers[source2])
                     dataHazards++;
+
 
                 registers[destination] = true;
                 cycle[2] = Math.Max(1, lastOp[2]);
@@ -130,7 +145,7 @@ namespace RISC_V_Pipeline
                 int source = Convert.ToInt32(instruction.Source1.Substring(1));
                 int destination = Convert.ToInt32(instruction.Destination.Substring(1));
 
-                if (!registers[source])
+                if (registers[source])
                     dataHazards++;
 
                 registers[destination] = true;
@@ -187,6 +202,7 @@ namespace RISC_V_Pipeline
                     lastOp[2] = 3;
 
                 WriteBack(cycle);
+                structuralHazard++;
             }
             else
             {
@@ -211,13 +227,19 @@ namespace RISC_V_Pipeline
 
         public void PrintList()
         {
+            int i = 0;
+
             foreach (int[] row in cycles)
             {
+
+                Console.Write("\t" + instructions[i] + "\t\t");
+
                 foreach (int cycle in row)
                 {
-                    Console.Write($"\t{cycle}");
+                    Console.Write($"{cycle}\t\t");
                 }
 
+                i++;
                 Console.WriteLine();
             }
         }
