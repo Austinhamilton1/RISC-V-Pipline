@@ -115,7 +115,7 @@ namespace RISC_V_Pipeline
             cycle[1] = Math.Max(1, lastOp[1]);
 
             if(1 > lastOp[0])
-                lastOp[0] = 1;
+                lastOp[0] += 1;
 
             Execute(i, cycle);
         }
@@ -136,7 +136,7 @@ namespace RISC_V_Pipeline
                 cycle[2] = Math.Max(1, lastOp[2]);
 
                 if (1 > lastOp[1])
-                    lastOp[1] = 1;
+                    lastOp[1] += 1;
 
                 Memory(instruction, cycle, false);
             }
@@ -152,7 +152,7 @@ namespace RISC_V_Pipeline
                 cycle[2] = Math.Max(1, lastOp[2]);
 
                 if (1 > lastOp[1])
-                    lastOp[1] = 2;
+                    lastOp[1] += 2;
 
                 Memory(instruction, cycle, false);
             }
@@ -164,7 +164,7 @@ namespace RISC_V_Pipeline
                 cycle[2] = Math.Max(1, lastOp[2]);
 
                 if (1 > lastOp[1])
-                    lastOp[1] = 1;
+                    lastOp[1] += 1;
 
                 Memory(instruction, cycle, true);
             }
@@ -175,7 +175,7 @@ namespace RISC_V_Pipeline
                 cycle[2] = Math.Max(1, lastOp[2]);
 
                 if (1 > lastOp[1])
-                    lastOp[1] = 1;
+                    lastOp[1] += 1;
 
                 Memory(instruction, cycle, true);
 
@@ -199,7 +199,7 @@ namespace RISC_V_Pipeline
                 cycle[3] = Math.Max(3, lastOp[3]);
 
                 if (3 > lastOp[2])
-                    lastOp[2] = 3;
+                    lastOp[2] += 3;
 
                 WriteBack(cycle);
                 structuralHazard++;
@@ -209,7 +209,7 @@ namespace RISC_V_Pipeline
                 cycle[3] = Math.Max(1, lastOp[3]);
 
                 if (1 > lastOp[2])
-                    lastOp[2] = 1;
+                    lastOp[2] += 1;
 
                 WriteBack(cycle);
             }
@@ -219,10 +219,14 @@ namespace RISC_V_Pipeline
         {
             cycle[4] = 1;
 
-            for (int i = 0; i < lastOp.Length - 1; i++)
-                lastOp[i] = lastOp[i + 1];
+            if(programCounter -1 != 0)
+            {
+                for (int i = 0; i < lastOp.Length - 1; i++)
+                    lastOp[i] = lastOp[i + 1];
+            }
+            
 
-            lastOp[3] = 1;
+            lastOp[3] += 1;
         }
 
         public void PrintList()
@@ -245,5 +249,6 @@ namespace RISC_V_Pipeline
         }
 
     }
+
 }
 
